@@ -1,5 +1,6 @@
 package tw.meowdev.cfg.askdemo;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,7 +10,37 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
+import okhttp3.OkHttpClient;
+
 public class MainActivity extends AppCompatActivity {
+
+    private FloatingActionButton fab;
+    private HttpClient client;
+    private SQLiteDatabase db;
+    private String api = "https://api.myjson.com/bins/%s";
+
+    private JSONObject getData(String value) {
+        JSONObject json = null;
+        String data = CacheData.getData(db, value);
+
+        if(data == null) { // has no cache data or need to refresh
+            String url = String.format(api, value);
+            data = client.get(url);
+        }
+
+        try {
+            json = new JSONObject(data);
+        } catch (Exception e) {
+
+        }
+        return json;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,14 +49,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                getData("1qzf3");
             }
         });
+
+        db = Database.getWritableDatabase(this);
+        client = new HttpClient();
     }
 
     @Override
