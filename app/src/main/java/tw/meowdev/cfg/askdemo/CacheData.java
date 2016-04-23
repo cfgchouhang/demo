@@ -3,6 +3,7 @@ package tw.meowdev.cfg.askdemo;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,7 +51,9 @@ public class CacheData {
         String jsonStr = null;
 
         if(cursor.moveToFirst()) {
+
             String createTime = cursor.getString(cursor.getColumnIndex("create_time"));
+            Log.i("DB", createTime);
             if(timeDiff(createTime, now()) < day)
                 jsonStr = cursor.getString(cursor.getColumnIndex("json"));
             else
