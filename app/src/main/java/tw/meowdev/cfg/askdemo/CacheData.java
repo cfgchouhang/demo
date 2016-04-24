@@ -46,7 +46,7 @@ public class CacheData {
         };
     }
 
-    public static String getData(SQLiteDatabase db, String key) {
+    public static String getData(SQLiteDatabase db, String key, boolean isOnline) {
         Cursor cursor = db.query(tableName, null, "key=?", new String[]{key}, null, null, null, "1");
         String jsonStr = null;
 
@@ -54,7 +54,7 @@ public class CacheData {
 
             String createTime = cursor.getString(cursor.getColumnIndex("create_time"));
             Log.i("DB", createTime);
-            if(timeDiff(createTime, now()) < day)
+            if(timeDiff(createTime, now()) < day || !isOnline)
                 jsonStr = cursor.getString(cursor.getColumnIndex("json"));
             else
                 db.delete(tableName, "key=?", new String[]{key}); // delete too old cache data

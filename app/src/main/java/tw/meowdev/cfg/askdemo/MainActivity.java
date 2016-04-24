@@ -1,6 +1,9 @@
 package tw.meowdev.cfg.askdemo;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -69,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void getData(String value) {
-        String data = CacheData.getData(db, value);
+        String data = CacheData.getData(db, value, HttpClient.isOnline(this));
         try {
-            if (data == null) { // has no cache data or need to refresh
+            if (data == null) { // has no cache data
                 String url = String.format(api, value);
                 client.get(url, new MyCallback(value));
             } else {
@@ -88,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setData(JSONObject json, String from) {
-        textView.setText(String.format("data: %s\nfrom: %s", json.toString(), from));
+        textView.setText(String.format("data: %s\n\nfrom: %s\n", json.toString(), from));
     }
 
     @Override
@@ -110,9 +113,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         db = Database.getWritableDatabase(this);
-
         client = new HttpClient();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
