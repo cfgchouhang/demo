@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-
 public class CacheData {
     private static long day = 1 * 24 * 60 * 60 * 1000; // one day in millisecond
     final public static String tableName = "cache";

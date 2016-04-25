@@ -3,7 +3,6 @@ package tw.meowdev.cfg.askdemo;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -11,7 +10,6 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
 public class HttpClient {
     private static OkHttpClient client = null;

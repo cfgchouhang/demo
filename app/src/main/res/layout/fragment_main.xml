@@ -6,11 +6,29 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="tw.meowdev.cfg.askdemo.MainActivityFragment"
-    tools:showIn="@layout/activity_main">
+    tools:context=".MainFragment">
+
+    <EditText
+        android:id="@+id/key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/button"
+        android:layout_alignBottom="@+id/button"
+        android:inputType="text"
+        android:text="1qzf3"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Ask" />
 
     <TextView
         android:id="@+id/text"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/key"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!" />
