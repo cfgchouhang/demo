@@ -24,7 +24,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MainFragment extends Fragment {
+public class QuestionFragment extends Fragment {
 
     private TextView textView;
     private EditText editText;
@@ -34,7 +34,7 @@ public class MainFragment extends Fragment {
     private SQLiteDatabase db;
     private String api = "https://api.myjson.com/bins/%s";
 
-    public MainFragment() {
+    public QuestionFragment() {
     }
 
     @Override
@@ -44,6 +44,7 @@ public class MainFragment extends Fragment {
 
         client = new HttpClient();
         db = Database.getWritableDatabase(getActivity());
+        toolbar = (Toolbar)view.findViewById(R.id.toolbar);
         textView = (TextView)view.findViewById(R.id.text);
         editText = (EditText)view.findViewById(R.id.key);
         button = (Button)view.findViewById(R.id.button);
@@ -56,15 +57,27 @@ public class MainFragment extends Fragment {
             }
         });
 
+        ask(getArguments().getString("id"));
+
         return view;
     }
 
     @Override
     public void onActivityCreated (Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         AppCompatActivity activity = (AppCompatActivity)getActivity();
+        activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setTitle("Question");
         //activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public void ask(String id) {
+        if(id != null) {
+            if(id.startsWith("/")) id = id.substring(1);
+            editText.setText(id);
+            button.callOnClick();
+        }
     }
 
     private void getData(String value) {
@@ -105,11 +118,10 @@ public class MainFragment extends Fragment {
                     Toast.makeText(getActivity(), "Network call failed", Toast.LENGTH_SHORT).show();
                 }
             });
-
         }
 
         @Override
-        public void onResponse(Call call, Response response) throws IOException {
+        public void onResponse(Call call, final Response response) throws IOException {
             if (response.isSuccessful()) {
                 String responseStr = response.body().string();
                 try {
@@ -126,7 +138,12 @@ public class MainFragment extends Fragment {
                     Toast.makeText(getActivity(), "JSON Error", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(getActivity(), String.format("Response Error: %s", response.code()), Toast.LENGTH_SHORT).show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), String.format("Response Error: %s", response.code()), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }
     };

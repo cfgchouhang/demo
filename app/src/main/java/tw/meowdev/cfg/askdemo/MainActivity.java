@@ -1,10 +1,13 @@
 package tw.meowdev.cfg.askdemo;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,14 +15,49 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Main");
-        setSupportActionBar(toolbar);
-
-        MainFragment fragment = new MainFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+        setFragment(getIntent());
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setFragment(intent);
+    }
+
+    private void setFragment(Intent intent) {
+        Uri deeplink = intent.getData();
+        if(deeplink != null) {
+            String type = deeplink.getHost(), id = deeplink.getPath();
+
+            if(type == null || id == null) {
+                putQuestionFragment(null);
+            } else if(type.equals("question")) {
+                putQuestionFragment(id);
+            } else if(type.equals("user")) {
+
+            }
+        } else {
+            putQuestionFragment(null);
+        }
+    }
+
+    private void putQuestionFragment(String id) {
+        Log.d("Tag", "question frag");
+        QuestionFragment fragment = (QuestionFragment)getSupportFragmentManager().findFragmentByTag("question");
+        if(fragment == null) {
+            fragment = new QuestionFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("id", id);
+            fragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment, "question").commit();
+        } else {
+            fragment.ask(id);
+        }
+    }
+
+    private void putProfileFragment(String id) {
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
