@@ -34,14 +34,14 @@ public class MainActivity extends AppCompatActivity {
             } else if(type.equals("question")) {
                 putQuestionFragment(id);
             } else if(type.equals("user")) {
-
+                putProfileFragment(id);
             }
         } else {
             putQuestionFragment(null);
         }
     }
 
-    private void putQuestionFragment(String id) {
+    protected void putQuestionFragment(String id) {
         Log.d("Tag", "question frag");
         QuestionFragment fragment = (QuestionFragment)getSupportFragmentManager().findFragmentByTag("question");
         if(fragment == null) {
@@ -49,14 +49,15 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putString("id", id);
             fragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment, "question").commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, "question").commit();
         } else {
-            fragment.ask(id);
+            fragment.ask(id); // if fragment existing, refresh it to show question
         }
     }
 
-    private void putProfileFragment(String id) {
-
+    protected void putProfileFragment(String id) {
+            ProfileFragment fragment = new ProfileFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
     @Override
