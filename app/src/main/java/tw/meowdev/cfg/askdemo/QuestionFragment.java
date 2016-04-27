@@ -79,17 +79,16 @@ public class QuestionFragment extends Fragment {
         }
     }
 
-    private void getData(String value) {
-        String data = CacheData.getData(db, value, HttpClient.isOnline(getActivity()));
+    private void getData(String id) {
+        String data = CacheData.getData(db, id, HttpClient.isOnline(getActivity()));
         try {
             if (data == null) { // has no cache data
-                String url = String.format(api, value);
-                client.get(url, new MyCallback(value));
+                String url = String.format(api, id);
+                client.get(url, new MyCallback(id));
             } else {
-                JSONObject json = null;
-
-                json = new JSONObject(data);
+                JSONObject json = new JSONObject(data);
                 setData(json, "from cache");
+                ((MainActivity)getActivity()).lastQId = id;
             }
         } catch (IOException e) {
 
@@ -122,6 +121,7 @@ public class QuestionFragment extends Fragment {
         @Override
         public void onResponse(Call call, final Response response) throws IOException {
             if (response.isSuccessful()) {
+                ((MainActivity)getActivity()).lastQId = this.key;
                 String responseStr = response.body().string();
                 try {
                     final JSONObject json = new JSONObject(responseStr);

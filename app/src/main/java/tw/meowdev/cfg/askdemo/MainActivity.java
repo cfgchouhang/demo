@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    protected String lastQId = null; // the last question id can restore question view if come back from profile page
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void putQuestionFragment(String id) {
-        Log.d("Tag", "question frag");
+        lastQId = id;
         QuestionFragment fragment = (QuestionFragment)getSupportFragmentManager().findFragmentByTag("question");
         if(fragment == null) {
             fragment = new QuestionFragment();
@@ -56,8 +58,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void putProfileFragment(String id) {
-            ProfileFragment fragment = new ProfileFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        Toast.makeText(this, lastQId+" ", Toast.LENGTH_SHORT).show();
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("id", id);
+        fragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, "profile").commit();
     }
 
     @Override
@@ -83,5 +89,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().findFragmentByTag("profile") != null) {
+            Toast.makeText(this, lastQId+" ", Toast.LENGTH_SHORT).show();
+            putQuestionFragment(lastQId);
+        } else {
+            finish();
+        }
     }
 }

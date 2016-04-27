@@ -14,7 +14,7 @@
         <ImageView
             android:id="@+id/imgWall"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="240dp"
             android:scaleType="centerCrop"
             android:src="@drawable/wall"/>
 
@@ -36,10 +36,21 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/arrow_back"
+            android:src="@drawable/ic_arrow_back_black_24dp"
             android:background="@null" />
 
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Peter Chou"
+        android:textSize="20sp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/wallLayout"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="20dp"/>
 
     <TextView
         android:id="@+id/infoSpace"
@@ -47,20 +58,25 @@
         android:layout_height="56dp"
         android:layout_below="@id/wallLayout"
         android:textColor="#FFFFFF"
-        android:textSize="29dp"
+        android:textSize="30sp"
         android:text="Info"
         android:gravity="center"
         android:background="@color/colorPrimary" />
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_below="@+id/infoSpace"
+        android:background="@color/colorAccent"/>
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/infoSpace">
+        android:layout_below="@+id/line"
+        android:divider="@android:color/transparent">
 
     </ListView>
-
-
-
 
 </RelativeLayout>
