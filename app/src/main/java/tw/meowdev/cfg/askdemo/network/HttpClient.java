@@ -1,4 +1,4 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

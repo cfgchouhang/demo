@@ -1,4 +1,4 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -8,6 +8,8 @@ import android.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import tw.meowdev.cfg.askdemo.utils.Time;
 
 public class CacheData {
     private static long day = 1 * 24 * 60 * 60 * 1000; // one day in millisecond
@@ -24,7 +26,7 @@ public class CacheData {
     public CacheData(String key, String json) {
         this.key = key;
         this.json = json;
-        this.time = now();
+        this.time = Time.now();
     }
 
     public void insert(SQLiteDatabase db) {
@@ -53,7 +55,7 @@ public class CacheData {
 
             String createTime = cursor.getString(cursor.getColumnIndex("create_time"));
             Log.i("DB", createTime);
-            if(timeDiff(createTime, now()) < day || !isOnline)
+            if(Time.timeDiff(createTime, Time.now()) < day || !isOnline)
                 jsonStr = cursor.getString(cursor.getColumnIndex("json"));
             else
                 db.delete(tableName, "key=?", new String[]{key}); // delete too old cache data
@@ -63,23 +65,5 @@ public class CacheData {
     }
 
     // return local time string
-    public static String now() {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        return sdf.format(cal.getTime());
-    }
-
-    public static long timeDiff(String from, String to) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        long diff = 0L;
-        try {
-            Date d1 = sdf.parse(to), d2 = sdf.parse(from);
-            diff = d1.getTime()-d2.getTime();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return diff;
-
-    }
 }

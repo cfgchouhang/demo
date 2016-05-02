@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileFragment">
+    tools:context=".views.ProfileFragment">
 
     <RelativeLayout
         android:id="@+id/wallLayout"
@@ -20,8 +20,8 @@
 
         <ImageView
             android:id="@+id/imgAvatar"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_marginLeft="16dp"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
@@ -50,7 +50,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignBottom="@+id/wallLayout"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="30dp"/>
 
     <TextView
         android:id="@+id/infoSpace"

@@ -1,19 +1,23 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.views;
 
-import android.database.sqlite.SQLiteBlobTooBigException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,10 +28,17 @@ import java.util.ArrayList;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import tw.meowdev.cfg.askdemo.R;
+import tw.meowdev.cfg.askdemo.models.CacheData;
+import tw.meowdev.cfg.askdemo.managers.Database;
+import tw.meowdev.cfg.askdemo.models.ProfileItem;
+import tw.meowdev.cfg.askdemo.network.HttpClient;
+import tw.meowdev.cfg.askdemo.utils.CircleTransformation;
 
 public class ProfileFragment extends Fragment {
 
     private TextView nameText;
+    private ImageView imgAvatar;
     private ImageButton btnBack;
     private ListView listView;
     private SQLiteDatabase db;
@@ -57,6 +68,7 @@ public class ProfileFragment extends Fragment {
         btnBack.setOnClickListener(onClickListener);
         listView = (ListView)view.findViewById(R.id.listView);
         nameText = (TextView)view.findViewById(R.id.nameText);
+        imgAvatar = (ImageView)view.findViewById(R.id.imgAvatar);
 
         return view;
     }
@@ -68,29 +80,8 @@ public class ProfileFragment extends Fragment {
         getData(getArguments().getString("id"));
     }
 
-    private void setData(JSONObject jobj) {
-
-        ArrayList<ProfileItem> arrayList = ProfileItem.fromJson(jobj);
-        arrayList.add(new ProfileItem("Math, Phy, Chem", "subjects", R.drawable.ic_favorite_black_24dp));
-        if(adapter == null) {
-            Toast.makeText(getActivity(), jobj.toString(), Toast.LENGTH_SHORT).show();
-            adapter = new ProfileAdapter(getActivity(), arrayList);
-            listView.setAdapter(adapter);
-        } else {
-            adapter.clear();
-            adapter.addAll(arrayList);
-            adapter.notifyDataSetChanged();
-        }
-
-        try {
-            JSONObject nameObj = jobj.getJSONObject("name");
-            String firstName = nameObj.getString("first"), lastName = nameObj.getString("last");
-            nameText.setText(firstName+" "+lastName);
-        } catch (JSONException e) {
-        }
-    }
-
     private void getData(String id) {
+        if(id.startsWith("/")) id = id.substring(1);
         String data = CacheData.getData(db, id, HttpClient.isOnline(getActivity()));
         try {
             if (data == null) { // has no cache data
@@ -106,6 +97,33 @@ public class ProfileFragment extends Fragment {
 
         } catch (JSONException e) {
 
+        }
+    }
+
+    private void setData(JSONObject jobj) {
+
+        ArrayList<ProfileItem> arrayList = ProfileItem.fromJson(jobj);
+        arrayList.add(new ProfileItem("Math, Phy, Chem", "subjects", R.drawable.ic_favorite_black_24dp));
+        if(adapter == null) {
+
+            adapter = new ProfileAdapter(getActivity(), arrayList);
+            listView.setAdapter(adapter);
+        } else {
+            adapter.clear();
+            adapter.addAll(arrayList);
+            adapter.notifyDataSetChanged();
+        }
+
+        try {
+            JSONObject nameObj = jobj.getJSONObject("name");
+            String firstName = nameObj.getString("first"), lastName = nameObj.getString("last");
+            String imgUrl = jobj.getString("profile_pic_url");
+
+            Toast.makeText(getActivity(), imgUrl, Toast.LENGTH_LONG).show();
+            Picasso.with(getActivity()).load(imgUrl).transform(new CircleTransformation()).into(imgAvatar);
+            nameText.setText(firstName+" "+lastName);
+
+        } catch (JSONException e) {
         }
     }
 

@@ -1,4 +1,4 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.views;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import tw.meowdev.cfg.askdemo.R;
+import tw.meowdev.cfg.askdemo.models.ProfileItem;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem> {
 

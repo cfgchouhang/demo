@@ -1,4 +1,4 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.models;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -6,12 +6,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by cfg on 4/27/16.
- */
+import tw.meowdev.cfg.askdemo.R;
+
 public class ProfileItem {
-    String value, column;
-    int iconId;
+    public String value, column;
+    public int iconId;
 
     static String[] keys = new String[]{"email", "phone", "school"};
     static HashMap<String, Integer> iconIds = new HashMap<String, Integer>() {{

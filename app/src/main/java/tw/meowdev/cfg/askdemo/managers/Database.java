@@ -1,8 +1,10 @@
-package tw.meowdev.cfg.askdemo;
+package tw.meowdev.cfg.askdemo.managers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import tw.meowdev.cfg.askdemo.models.CacheData;
 
 public class Database {
     private final static String DB_NAME = "AskDemo";
