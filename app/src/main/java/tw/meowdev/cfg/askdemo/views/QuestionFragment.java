@@ -61,7 +61,7 @@ public class QuestionFragment extends Fragment {
     private Toolbar toolbar;
 
     private Drawable originalImage;
-    private ImageButton imgButton;
+    private ImageView imgRes;
     private Animator currentAnimator;
     private int shortAnimationDuration;
 
@@ -78,8 +78,8 @@ public class QuestionFragment extends Fragment {
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 getData(editText.getText().toString());
-            } else if(view.getId() == R.id.imgButton) {
-                zoomImageFromThumb(imgButton, originalImage);
+            } else if(view.getId() == R.id.imgRes) {
+                zoomImageFromThumb(imgRes, originalImage);
             }
         }
     };
@@ -114,8 +114,8 @@ public class QuestionFragment extends Fragment {
         button = (Button)view.findViewById(R.id.button);
         button.setOnClickListener(onClickListener);
 
-        imgButton = (ImageButton)view.findViewById(R.id.imgButton);
-        imgButton.setOnClickListener(onClickListener);
+        imgRes = (ImageView)view.findViewById(R.id.imgRes);
+        imgRes.setOnClickListener(onClickListener);
 
         return view;
     }
@@ -186,8 +186,8 @@ public class QuestionFragment extends Fragment {
             Target target = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    imgButton.setImageBitmap(bitmap);
-                    originalImage = imgButton.getDrawable();
+                    imgRes.setImageBitmap(bitmap);
+                    originalImage = imgRes.getDrawable();
                 }
 
                 @Override

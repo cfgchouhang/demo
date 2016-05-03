@@ -5,6 +5,9 @@
     android:layout_height="match_parent"
     tools:context=".views.QuestionFragment">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -197,20 +200,20 @@
                 android:text="Rating: 5"/>
         </RelativeLayout>
 
-        <ImageButton
-            android:id="@+id/imgButton"
+        <ImageView
+            android:id="@+id/imgRes"
             android:layout_width="100dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="80dp"
+            android:layout_below="@+id/answerLayout"
+            android:layout_marginTop="20dp"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
             android:scaleType="centerInside"/>
     </RelativeLayout>
+    </ScrollView>
 
     <ImageView
         android:id="@+id/expanded_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
-
 </FrameLayout>

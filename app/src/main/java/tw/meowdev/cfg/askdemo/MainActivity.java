@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().findFragmentByTag("profile") != null) {
-            Toast.makeText(this, lastQId+" ", Toast.LENGTH_SHORT).show();
+        if (getSupportFragmentManager().findFragmentByTag("profile") != null) {
+            Toast.makeText(this, lastQId + " ", Toast.LENGTH_SHORT).show();
             putQuestionFragment(lastQId);
         } else {
             finish();
