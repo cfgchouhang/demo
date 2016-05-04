@@ -3,6 +3,7 @@ package tw.meowdev.cfg.askdemo;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +54,11 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putString("id", id);
             fragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, "question").commit();
+
+            FragmentTransaction tc = getSupportFragmentManager().beginTransaction();
+            if(getSupportFragmentManager().findFragmentByTag("profile") != null)
+                tc.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit);
+            tc.replace(R.id.container, fragment, "question").commit();
         } else {
             fragment.ask(id); // if fragment existing, refresh it to show question
         }
@@ -64,7 +69,11 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString("id", id);
         fragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, "profile").commit();
+
+        FragmentTransaction tc = getSupportFragmentManager().beginTransaction();
+        if(getSupportFragmentManager().findFragmentByTag("question") != null)
+            tc.setCustomAnimations(R.anim.enter, R.anim.exit);
+        tc.replace(R.id.container, fragment, "profile").commit();
     }
 
     @Override
@@ -95,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().findFragmentByTag("profile") != null) {
-            Toast.makeText(this, lastQId + " ", Toast.LENGTH_SHORT).show();
             putQuestionFragment(lastQId);
         } else {
             finish();

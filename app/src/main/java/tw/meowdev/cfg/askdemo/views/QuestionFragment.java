@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -21,7 +22,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,12 +32,8 @@ import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -59,22 +55,76 @@ public class QuestionFragment extends Fragment {
     private EditText editText;
     private Button button;
     private Toolbar toolbar;
+    private boolean canAsk = true;
 
     private Drawable originalImage;
     private ImageView imgRes;
     private Animator currentAnimator;
     private int shortAnimationDuration;
+    private CircleTransformation transformation = new CircleTransformation();
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            imgRes.setImageBitmap(bitmap);
+            originalImage = imgRes.getDrawable();
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+        }
+    };
 
     private SQLiteDatabase db;
     private HttpClient client;
     private String api = "https://api.myjson.com/bins/%s";
 
+    private class MyCallback implements Callback {
+        String key;
 
+        public MyCallback(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public void onFailure(Call call, IOException exception) {
+            canAsk = true;
+            handlerError(exception.getMessage());
+        }
+
+        @Override
+        public void onResponse(Call call, final Response response) throws IOException {
+            canAsk = true;
+            if (response.isSuccessful()) {
+                ((MainActivity)getActivity()).lastQId = this.key;
+                String responseStr = response.body().string();
+                try {
+                    final JSONObject json = new JSONObject(responseStr);
+                    CacheData cacheData = new CacheData(this.key, json.toString());
+                    cacheData.insert(db);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setData(json);
+                        }
+                    });
+                } catch (JSONException e) {
+                    handlerError("JSON Error");
+                }
+            } else {
+                handlerError(String.format("Response Error: %s", response.code()));
+            }
+        }
+    }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if(view.getId() == R.id.button) {
+            if(view.getId() == R.id.button && canAsk) {
+                canAsk = false;
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 getData(editText.getText().toString());
@@ -83,9 +133,6 @@ public class QuestionFragment extends Fragment {
             }
         }
     };
-
-    public QuestionFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,9 +144,7 @@ public class QuestionFragment extends Fragment {
         editText = (EditText)view.findViewById(R.id.key);
 
         askLayout = (RelativeLayout)view.findViewById(R.id.askLayout);
-        askLayout.setVisibility(View.INVISIBLE);
         answerLayout = (RelativeLayout)view.findViewById(R.id.answerLayout);
-        answerLayout.setVisibility(View.INVISIBLE);
 
         askName = (TextView)view.findViewById(R.id.textAskName);
         answerName = (TextView)view.findViewById(R.id.textAnswerName);
@@ -117,6 +162,7 @@ public class QuestionFragment extends Fragment {
         imgRes = (ImageView)view.findViewById(R.id.imgRes);
         imgRes.setOnClickListener(onClickListener);
 
+        setQuestionView(View.INVISIBLE);
         return view;
     }
 
@@ -126,11 +172,12 @@ public class QuestionFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setTitle("Question");
-        //activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionbar = activity.getSupportActionBar();
+        if(actionbar != null) {
+            activity.getSupportActionBar().setTitle("AskDemo");
+        }
 
         ask(getArguments().getString("id"));
-
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
 
@@ -142,6 +189,12 @@ public class QuestionFragment extends Fragment {
         }
     }
 
+    private void setQuestionView(int visibility) {
+        answerLayout.setVisibility(visibility);
+        askLayout.setVisibility(visibility);
+        imgRes.setVisibility(visibility);
+    }
+
     private void getData(String id) {
         String data = CacheData.getData(db, id, HttpClient.isOnline(getActivity()));
         try {
@@ -149,19 +202,17 @@ public class QuestionFragment extends Fragment {
                 String url = String.format(api, id);
                 client.get(url, new MyCallback(id));
             } else {
+                canAsk = true;
                 JSONObject json = new JSONObject(data);
                 setData(json);
                 ((MainActivity)getActivity()).lastQId = id;
             }
-        } catch (IOException e) {
-
-        } catch (JSONException e) {
-
+        } catch (IOException | JSONException e) {
+            handlerError(e.getMessage());
         }
     }
 
     private void setData(JSONObject json) {
-        //textView.setText(String.format("data: %s\n\nfrom: %s\n", json.toString(), from));
         JSONObject asked, answered;
         try {
             json = json.getJSONObject("data");
@@ -176,83 +227,26 @@ public class QuestionFragment extends Fragment {
             date.setText(Time.shortStr(json.getString("created_at"), "yyyy-MM-dd HH:mm:ss Z"));
             rating.setText(String.format("Rating: %s", json.get("user_rating")));
 
-            CircleTransformation tf = new CircleTransformation();
-            Picasso.with(getActivity()).load(asked.getString("profile_pic_url")).transform(tf).into(askAvatar);
-            Picasso.with(getActivity()).load(answered.getString("profile_pic_url")).transform(tf).into(answerAvatar);
-
-            askLayout.setVisibility(View.VISIBLE);
-            answerLayout.setVisibility(View.VISIBLE);
-
-            Target target = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    imgRes.setImageBitmap(bitmap);
-                    originalImage = imgRes.getDrawable();
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-
+            Picasso.with(getActivity()).load(asked.getString("profile_pic_url")).transform(transformation).into(askAvatar);
+            Picasso.with(getActivity()).load(answered.getString("profile_pic_url")).transform(transformation).into(answerAvatar);
             Picasso.with(getActivity()).load(json.getString("picture_url")).into(target);
 
+            setQuestionView(View.VISIBLE);
         } catch (JSONException e) {
+            handlerError(e.getMessage());
         }
     }
 
-    private class MyCallback implements Callback {
-        String key;
-
-        public MyCallback(String key) {
-            this.key = key;
-        }
-
-        @Override
-        public void onFailure(Call call, IOException exception) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getActivity(), "Network call failed", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        @Override
-        public void onResponse(Call call, final Response response) throws IOException {
-            if (response.isSuccessful()) {
-                ((MainActivity)getActivity()).lastQId = this.key;
-                String responseStr = response.body().string();
-                try {
-                    final JSONObject json = new JSONObject(responseStr);
-                    CacheData cacheData = new CacheData(this.key, json.toString());
-                    cacheData.insert(db);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setData(json);
-                        }
-                    });
-                } catch (JSONException e) {
-                    Toast.makeText(getActivity(), "JSON Error", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity(), String.format("Response Error: %s", response.code()), Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void handlerError(final String errMsg) {
+        ((MainActivity)getActivity()).lastQId = null;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setQuestionView(View.INVISIBLE);
+                Toast.makeText(getActivity(), errMsg, Toast.LENGTH_SHORT).show();
             }
-        }
-    };
-
-
+        });
+    }
 
     private void zoomImageFromThumb(final View thumbView, Drawable drawable) {
         // If there's an animation in progress, cancel it
