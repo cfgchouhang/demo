@@ -135,7 +135,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void setData(JSONObject jobj) {
+    public void setData(JSONObject jobj) {
         ArrayList<ProfileItem> arrayList = ProfileItem.fromJson(jobj);
         arrayList.add(new ProfileItem("Math, Phy, Chem", "subjects", R.drawable.ic_favorite_black_24dp));
         if(adapter == null) {

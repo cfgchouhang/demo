@@ -212,7 +212,7 @@ public class QuestionFragment extends Fragment {
         }
     }
 
-    private void setData(JSONObject json) {
+    public void setData(JSONObject json) {
         JSONObject asked, answered;
         try {
             json = json.getJSONObject("data");
